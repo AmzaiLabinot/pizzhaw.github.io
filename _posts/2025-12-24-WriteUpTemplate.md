@@ -17,7 +17,21 @@ yourself later on and for others learning from your work.
 
 ## Template Structure
 
+- Template Header. Use the following YAML preamble at the top of your write-up to provide metadata about the challenge 
+for the website to display correctly. This includes the title, date, description, tags, and categories. Adjust the 
+fields as needed for each write-up and fill in the placeholders with the appropriate information for each challenge.
+````markdown
+---
+layout: post
+title: ADD TITLE HERE
+date: 2025-11-24 00:01:00
+description: ADD A SHORT DESCRIPTION OF THE WRITE-UP HERE
+tags: writeups <ADD_CATEGORY_TAG_HERE> <ADD_CTF_NAME_TAG_HERE>
+categories: writeups <ADD_CATEGORY_HERE>
+---
+````
 - Challenge Overview
+  - **Name of the CTF Event**
   - **Challenge Name**
   - **Category:** (Web, Crypto, Forensics, Reverse Engineering, etc.)
   - **Difficulty or Initial Points or Points earned**
@@ -30,12 +44,14 @@ yourself later on and for others learning from your work.
   - Tools used for reconnaissance
 - Solution Path: Provide a detailed, step-by-step explanation of how you solved the challenge:
   - Commands, scripts, or code snippets
-  - Screenshots (optional)
+  - Screenshots
   - Dead ends or mistakes you made along the way
 - Flag Capture: Show the final step that produced the flag.
   - **Important:** Do not share flags publicly if the CTF rules prohibit it or the event is still running.
-  - Flag: `flag{example_flag_here}`
+  - Flag: `flag{example_flag_here}` with a screenshot of the flag in the terminal or application output.
 - Conclusion: Summarize what you learned from the challenge and any tips for others attempting it.
+
+
 
 ## Examples Writeups:
 
