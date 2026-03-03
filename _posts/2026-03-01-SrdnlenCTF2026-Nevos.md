@@ -47,8 +47,7 @@ When clicking on the **Download Receipt** button, I got to a different page and 
 - `http://doubleshop.challs.srdnlen.it/api/receipt.jsp?id=sample.txt` (when nothing was bought)
 - `http://doubleshop.challs.srdnlen.it/api/receipt.jsp?id=<session>.log` (after purchases)
 
-{% include figure.liquid loading="eager" path="assets/img/posts/2026-03-03-double-shop/normal_receipt.png"
-class="img-fluid rounded z-depth-1" max_width="500px"%}
+![normal_receipt.png](../../../assets/img/posts/2026-03-03-double-shop/normal_receipt.png)
 
 This showed that the backend uses `JSP` and there was a session `id`. I first tried playing around with the session id but couldn't really do much. So I went back to the description and tried to figure out what it could hint at.
 
@@ -72,8 +71,7 @@ What I found in `vendor.js`:
 
 This more or less confirmed to me that the solution has something to do with the backend rather than the frontend logic.
 
-{% include figure.liquid loading="eager" path="assets/img/posts/2026-03-03-double-shop/vendor_partly.png"
-class="img-fluid rounded z-depth-1" max_width="500px"%}
+![vendor_partly.png](../../../assets/img/posts/2026-03-03-double-shop/vendor_partly.png)
 
 ---
 
@@ -155,8 +153,7 @@ At first, many attempts returned *"Receipt not found or expired (TTL 60s)*"
 After trying different traversal depth, I managed to read `/etc/passwd`:  
 `/api/receipt.jsp?id=../../../../../etc/passwd`:
 
-{% include figure.liquid loading="eager" path="assets/img/posts/2026-03-03-double-shop/etc_passwd.png"
-class="img-fluid rounded z-depth-1" max_width="500px"%}
+![etc_passwd.png](../../../assets/img/posts/2026-03-03-double-shop/etc_passwd.png)
 
 I then tried again with trial and error to find various files. Later I looked up online what typical Tomcat config files there are and tried accessing them such as:
 
@@ -174,8 +171,7 @@ Reading `tomcat-users.xml` returned credentials:
 - Username: `adm1n`
 - Password: `317014774e3e85626bd2fa9c5046142c`
 
-{% include figure.liquid loading="eager" path="assets/img/posts/2026-03-03-double-shop/credentials.png"
-class="img-fluid rounded z-depth-1" max_width="500px"%}
+![credentials.png](../../../assets/img/posts/2026-03-03-double-shop/credentials.png)
 
 Reading `server.xml`:
 ```xml
@@ -210,9 +206,8 @@ curl -s -H "X-Access-Manager: 127.0.0.1" -u "adm1n:317014774e3e85626bd2fa9c50461
 This successfully returned the **Tomcat Web Application Manager** page.
 
 In the application list, I found the (encoded) flag:  
+![flag.png](../../../assets/img/posts/2026-03-03-double-shop/flag.png)
 
-{% include figure.liquid loading="eager" path="assets/img/posts/2026-03-03-double-shop/flag.png"
-class="img-fluid rounded z-depth-1" max_width="500px"%}
 
 ## Conclusion
 This challenge need the chaining of **three distinct vulnerabilities**:
