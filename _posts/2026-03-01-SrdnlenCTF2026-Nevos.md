@@ -1,3 +1,14 @@
+---
+layout: post
+title: EHAX CTF 2026 - Double Shop (PWN)
+date: 2026-02-28
+description: How the "Double Shop" challenge was solved at the EHAX CTF 2026 event.
+tags: writeups pwn
+categories: writeups pwn
+author: "Nevos"
+featured: false
+---
+
 ## Challenge Overview
 
 - **Challenge Name:** Double Shop
@@ -22,7 +33,7 @@ The goal was to identify and reach the hidden "Manager" endpoint and retrieve th
 ### What I examined first
 
 From the description, the words double and manager sprang out to me but I didn't know what to make of them yet. So initially I simply tried out the various options in the webshop. 
-![image](normal_shop.png)
+![normal_shop.png](../../../assets/img/posts/2026-03-03-double-shop/normal_shop.png)
 - See if I can do something with the search feature
 - Purchasing items, refunding, refelling and so on, trying them also in different orders
 - Trying out ways to "break" the shop logic by using negative values, non-numbers, extremely high numbers etc.  
@@ -32,7 +43,7 @@ But none of those proved to be fruitful in any way. So after a lot of trial and 
 When clicking on the **Download Receipt** button, I got to a different page and it seemed to be the only proper way to go on from:
 - `http://doubleshop.challs.srdnlen.it/api/receipt.jsp?id=sample.txt` (when nothing was bought)
 - `http://doubleshop.challs.srdnlen.it/api/receipt.jsp?id=<session>.log` (after purchases)
-![image](normal_receipt.png)
+![normal_receipt.png](../../../assets/img/posts/2026-03-03-double-shop/normal_receipt.png)
 
 This showed that the backend uses `JSP` and there was a session `id`. I first tried playing around with the session id but couldn't really do much. So I went back to the description and tried to figure out what it could hint at.
 
@@ -55,8 +66,7 @@ What I found in `vendor.js`:
 - There was an API path pattern (`/api/...`) so more endpoints were likely
 
 This more or less confirmed to me that the solution has something to do with the backend rather than the frontend logic.
-![image](vendor_partly.png)
-
+![vendor_partly.png](../../../assets/img/posts/2026-03-03-double-shop/vendor_partly.png)
 ---
 
 ### Step 2 - Find the Manager endpoint
@@ -113,8 +123,7 @@ What I found:
 - `/api/manager;/` -> **403 Access Denied** 
 
 This felt like a good first step.
-![image](manager_403.png)
-
+![manager_403.png](../../../assets/img/posts/2026-03-03-double-shop/manager_403.png)
 The important part ended up being "*By default the Manager is only accessible from a browser running on the same machine as Tomcat.*" 
 
 ---
@@ -135,8 +144,7 @@ At first, many attempts returned *"Receipt not found or expired (TTL 60s)*"
 After trying different traversal depth, I managed to read `/etc/passwd`:  
 `/api/receipt.jsp?id=../../../../../etc/passwd`:
 
-![image](etc_passwd.png)
-
+![etc_passwd.png](../../../assets/img/posts/2026-03-03-double-shop/etc_passwd.png)
 I then tried again with trial and error to find various files. Later I looked up online what typical Tomcat config files there are and tried accessing them such as:
 
 - `/api/receipt.jsp?id=../../../../conf/server.xml`  
@@ -152,8 +160,7 @@ Reading `tomcat-users.xml` returned credentials:
 
 - Username: `adm1n`
 - Password: `317014774e3e85626bd2fa9c5046142c`
-![image](credentials.png)
-
+![credentials.png](../../../assets/img/posts/2026-03-03-double-shop/credentials.png)
 Reading `server.xml`:
 ```xml
 <Valve className="org.apache.catalina.valves.RemoteIpValve"
@@ -187,8 +194,7 @@ curl -s -H "X-Access-Manager: 127.0.0.1" -u "adm1n:317014774e3e85626bd2fa9c50461
 This successfully returned the **Tomcat Web Application Manager** page.
 
 In the application list, I found the (encoded) flag:  
-![image](flag.png)
-
+![flag.png](../../../assets/img/posts/2026-03-03-double-shop/flag.png)
 ## Conclusion
 This challenge need the chaining of **three distinct vulnerabilities**:
 - **Local File Inclusion** in `receipt.jsp?id=`

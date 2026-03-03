@@ -1,3 +1,14 @@
+---
+layout: post
+title: UniVsThreats 26 Quals CTF - Nightmare Customer (Web)
+date: 2026-02-28
+description: How the "Nightmare Customer" challenge was solved at the UVT CTF event.
+tags: writeups web
+categories: writeups web
+author: "Nevos"
+featured: false
+---
+
 ## CTF Write-Up: Nightmare Customer
 - Challenge Overview
   - **Name:** Nightmare Customer
@@ -11,7 +22,9 @@
 - Initial Analysis: 
 After registering an account and logging in, the application presents a space-themed e-commerce shop built with Flask and Jinja2. The shop page lists six products, each locked behind a customer tier:
 
-![image](shop_at_beginning.png)
+{% include figure.liquid loading="eager" path="assets/img/posts/2026-02-28-nightmare-customer/shop_at_beginning.png"
+class="img-fluid rounded z-depth-1" max_width="500px"%}
+
 At the beginning, the customer rank was rookie and only the "Quantum RAM Stick" was purchasable. The starting wallet balance is only 100 BBD, and tiers advance by purchasing unique products, not by spending more on the same item.
 
 ### Reconnaissance
@@ -30,7 +43,7 @@ Several interesting clues were found in the HTML source comments:
 These were however all dead-ends. None of the endpoints were reachable.   
 
 Another dead-end was as seeming SSTI vulnerability in the account bio:  
-I tried `{{7*7}}`, which then displayed as `49` in the bio. `{{ session  }}` displayed: `{'user_id': 'ed18b99d-f10d-4983-8990-11ab7f296a11', 'tier': 'Free', 'csrf_token': '***REDACTED***'}`. I tried out various inputs to try and get more information but nothing came of it. This cost me the most time.  
+I tried `{% raw %}{{7*7}}{% endraw %}`, which then displayed as `49` in the bio. `{% raw %}{{ session  }}{% endraw %}` displayed: `{'user_id': 'ed18b99d-f10d-4983-8990-11ab7f296a11', 'tier': 'Free', 'csrf_token': '***REDACTED***'}`. I tried out various inputs to try and get more information but nothing came of it. This cost me the most time.  
 
 After this I simply tried out various parts of the shop, to try and find something. See how it works and find some other endpoints. Nothing of it was particularly fruitful. No interesting endpoints and it simply uses session cookies, no JWT, despite what is says in the html and forging wasn't going to work.  
 There were two vouchers, which make the products cheaper and I tried to apply them multiple times, while the two did stack, when I tried to apply the same one twice, it wouldn't let me.
@@ -46,7 +59,9 @@ Additionally, each product description contained hints about its exploit vector,
 ## Solution Path
 ### Step 1: Coupon Stacking — Buying the Quantum RAM Stick (Rookie → Silver)
 The breakthrough happened when instead of applying one of the two coupons twice in a row, I applied the several times alternatingly `NEWCUSTOMER10` (10% off) and `SPACESALE15` (15% off), which did work. I did this many times, until the price was very low and I was able to buy the RAM sticks.
-![image](coupon_exploit.png)
+{% include figure.liquid loading="eager" path="assets/img/posts/2026-02-28-nightmare-customer/coupon_exploit.png"
+class="img-fluid rounded z-depth-1" max_width="500px"%}
+
 After purchasing, the tier advanced from **Rookie to Silver**. Buying more RAM does nothing anymore to help advance further at this point.
 
 ### Step 2: Bundling — Buying the Neutrino SSD (Silver → Gold)
@@ -55,7 +70,9 @@ Next is the SSD (BBD 500), which did not accept coupons. However, its descriptio
 ### Step 3: Voucher Credit Multiplication — Buying the Ion Processor (Gold → Platinum)
 At Gold tier, two new products unlocked: the Ion Processor Core (BBD 9000) and the Ion Starter Voucher (BBD 10). Each voucher granted 25 VC (Voucher Credits), and VC could be used as payment — with 1 VC = 1 BBD for Ion Processor.  
 The exploit here is:  I can buy a VC voucher with the BBD currency, then redeem it and get 25 VC. They cost 10 BBD or 10 VC because 1 VC = 1 BBD, so I can keep buying the vouchers and increase my VC, I gain 15 VC per voucher.
-![image](buying_vouchers.png)
+
+{% include figure.liquid loading="eager" path="assets/img/posts/2026-02-28-nightmare-customer/buying_vouchers.png"
+class="img-fluid rounded z-depth-1" max_width="500px"%}
 
 I had to redeem each voucher by hand and the Processor cost a lot, 9000 vs and I only gained 15 per voucher, so it took a lot of time. I somewhat automated this process by using a python script. I still bought the vouchers by hand but it automatically redeemed them for me.
 ```python
@@ -96,20 +113,31 @@ print("Done!")
 With this I quickly got enough VC to purchase the processor and advancing from **Gold to Platinum**.
 
 ### Step 4: Premium Payment Bypass — Buying the Nvidia GPU (Platinum → Diamond)
-Next on the *"to buy list"* is the GPU, which cost 1200 BBD but neither a combination with RAM nor vouchers could be used. The product description stated *"payment optional for premium members."* To buy the it, I had to send a GET request with the parameter `order-confirmation?order-confirmed=true`. So I just took one of the previous GET requests and resend it, while having the GPU in the cart. All orders have IDs but that seemed to be irrelevant here.
-![image](gpu_confirmation.png)
+Next on the *"to buy list"* is the GPU, which cost 1200 BBD but neither a combination with RAM nor vouchers could be used. 
+The product description stated *"payment optional for premium members."* To buy the it, I had to send a GET request with the parameter `order-confirmation?order-confirmed=true`. So I just took one of the previous GET requests and resend it, while having the GPU in the cart. All orders have IDs but that seemed to be irrelevant here.
+
+![gpu_confirmation.png](../../../assets/img/posts/2026-02-28-nightmare-customer/gpu_confirmation.png)
+
 This bypassed the payment validation completely, confirming the order without having to pay anything and advancing from **Platinum to Diamond**.
 
 ### Step 5: Negative Quantity Bundling — Buying the Dark Matter PSU (Diamond → Elite)
-The last item was the *"PSU"*, which cost 2000 BBD. The description hinted at bundling: *"Can be bundled with select items for calibration purposes."* While the UI did not allow adding negative quantities, **Burp Suite** could bypass this, to add items with negative quantities. So I added the *"GPU"* and *"SSD"* with a negative quantity, making the total price **300 BBD**, which I was able to afford thanks to having gotten 100 BBD each time my rank advanced.
-![image](negative_amount.png)
-![image](buying_PSU.png)
+The last item was the *"PSU"*, which cost 2000 BBD. The description hinted at bundling: *"Can be bundled with select 
+items for calibration purposes."* While the UI did not allow adding negative quantities, **Burp Suite** could bypass this, to add items with negative quantities. So I added the *"GPU"* and *"SSD"* with a negative quantity, making the total price **300 BBD**, which I was able to afford thanks to having gotten 100 BBD each time my rank advanced.
 
-With this, my rank advanced to **Elite** and I was able to click on the *"Elite Forum"* button, which accessed the `/flag` endpoint and displayed the flag for me.
-![image](flag.png)
+{% include figure.liquid loading="eager" path="assets/img/posts/2026-02-28-nightmare-customer/negative_amount.png" 
+class="img-fluid rounded z-depth-1" max_width="500px"%}
+
+{% include figure.liquid loading="eager" path="assets/img/posts/2026-02-28-nightmare-customer/buying_PSU.png"
+class="img-fluid rounded z-depth-1" max_width="500px"%}
+
+With this, my rank advanced to **Elite** and I was able to click on the *"Elite Forum"* button, which accessed the `/flag` 
+endpoint and displayed the flag for me.
+
+{% include figure.liquid loading="eager" path="assets/img/posts/2026-02-28-nightmare-customer/flag.png"
+class="img-fluid rounded z-depth-1" max_width="500px"%}
 
 ## Conclusion
-### Vulnerabilities Exploited
+**Vulnerabilities Exploited**
 This challenge chained the five distinct business logic vulnerabilities that can be seen in the flag image:
 1. **Coupon stacking**
 2. **Cart bundling to bypass per-product restrictions**
