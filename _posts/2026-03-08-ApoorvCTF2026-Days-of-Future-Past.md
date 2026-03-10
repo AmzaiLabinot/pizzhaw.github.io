@@ -9,6 +9,7 @@ author: "Anonymous Student"
 ---
 
 ## Challenge Overview
+
 - **Name of the CTF Event:** ApoorvCTF 2026
 - **Challenge Name:** Days of Future Past
 - **Category:** Web, Cryptography
@@ -17,6 +18,7 @@ author: "Anonymous Student"
 - **Goal:** Get the secure messages which contain the flag.
 
 ## Initial Analysis
+
 When visiting the provided website one is presented with the following home page:
 
 {% include figure.liquid loading="eager" path="assets/img/posts/2026-03-08-days-of-future-past/cryptoVault_home.png"
@@ -60,6 +62,7 @@ getMessages: function() {
 The config backup seems to be reachable at `/backup/config.json.bak` and there are additional interesting looking endpoints `/debug` (which seems to require an API key) and `/vault/messages` (which probably delivers the messages we are looking for and which requires an admin JWT).
 
 ## Solution Path
+
 First, I had a close look at the config backup, reachable at `/backup/config.json.bak`:
 
 {% include figure.liquid loading="eager" path="assets/img/posts/2026-03-08-days-of-future-past/cryptoVault_backup.png"
@@ -119,6 +122,7 @@ Then, in message 7, the "nalysi" could be "analysis". Trying this revealed the f
 class="img-fluid rounded z-depth-1" max_width="300px"%}
 
 Continuing like this for a long time, I finally managed to fully decrypt all 15 messages. Message 13 included the flag we were looking for (not shown here):
+
 1. Cryptography is not about hiding secrets but about understanding how systems fail
 2. When the same encryption key is reused across messages the security guarantees collapse dramatically
 3. Many students believe xor encryption is safe until they see how crib dragging breaks it completely
@@ -136,4 +140,5 @@ Continuing like this for a long time, I finally managed to fully decrypt all 15 
 15. Security through obscurity may delay attackers but it never provides real cryptographic protection
 
 ## Conclusion
+
 This CTF challenge was not a pure web challenge, but also included some cryptography. It was important to initially collect as much information as possible, then combine this information and move forward step by step. The most difficult part was definitely the decryption of the encrypted messages. For all previous steps there were different hints which helped, but for the decryption there were nearly none. This step required some background knowledge on cryptography and a lot of creativity. Decrypting the messages using the crib dragging method also highlights many important facts about cryptography, which can be found in the messages themselves ;)
