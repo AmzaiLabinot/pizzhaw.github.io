@@ -3,7 +3,7 @@ layout: post
 title: CryptoNite CTF 2026 - Mustard and Mangoes (Steganography)
 date: 2026-03-06
 description: Recovering a hidden flag from a PNG with a tampered IHDR height, encoded as 6s and 7s in a text file
-tags: writeups steganography cryptonite
+tags: writeups steganography cryptonitectf
 categories: writeups steganography cryptonite
 author: "Nevos"
 featured: false

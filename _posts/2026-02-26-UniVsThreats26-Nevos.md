@@ -3,7 +3,7 @@ layout: post
 title: UniVsThreats 26 Quals CTF - Nightmare Customer (Web)
 date: 2026-02-28
 description: How the "Nightmare Customer" challenge was solved at the UVT CTF event.
-tags: writeups web
+tags: writeups web univsthreatsctf
 categories: writeups web
 author: "Nevos"
 featured: false

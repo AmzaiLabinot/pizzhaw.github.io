@@ -3,7 +3,7 @@ layout: post
 title: EHAX CTF 2026 - Borderline Personality (Web)
 date: 2026-02-28
 description: How the "Borderline Personality" challenge was solved at the EHAX CTF 2026 event.
-tags: writeups web
+tags: writeups web ehaxctf
 categories: writeups web
 pseudocode: true
 author: "Anonymous Student"

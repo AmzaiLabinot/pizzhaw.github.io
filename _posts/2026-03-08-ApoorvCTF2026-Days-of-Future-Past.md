@@ -3,7 +3,7 @@ layout: post
 title: ApoorvCTF 2026 - Days of Future Past (Web)
 date: 2026-03-08
 description: How the "Days of Future Past" challenge was solved at the ApoorvCTF 2026 event.
-tags: writeups web cryptography
+tags: writeups web cryptography apoorvctf
 categories: writeups web cryptography
 author: "Anonymous Student"
 ---
