@@ -35,7 +35,8 @@ file vuln
 checksec vuln
 ```
 
-![file.png](../../../assets/img/posts/2026-03-13-hour-of-joy/file.png)
+{% include figure.liquid loading="eager" path="assets/img/posts/2026-03-13-hour-of-joy/file.png"
+class="img-fluid rounded z-depth-1" zoomable=true max_width="500px"%}
 
 ![checksec.png](../../../assets/img/posts/2026-03-13-hour-of-joy/checksec.png)
 
